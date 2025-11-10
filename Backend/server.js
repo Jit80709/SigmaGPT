@@ -90,16 +90,16 @@ app.get("/", (req, res) => res.send(" SigmaGPT Backend is running..."));
 
 
 
-//  Serve React frontend build (very important for single deploy)
+//  Serve React Frontend (for Render)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve the React build files
-app.use(express.static(path.join(__dirname, "dist")));
+const frontendPath = path.join(__dirname, "../frontend/dist"); //  if dist is inside frontend folder
 
-// Handle React routing, return all requests to index.html
+app.use(express.static(frontendPath));
+
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
+  res.sendFile(path.resolve(frontendPath, "index.html"));
 });
 
 // Launches Express app on PORT (default: 8080)
