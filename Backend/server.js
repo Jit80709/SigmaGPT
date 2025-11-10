@@ -98,7 +98,7 @@ const frontendPath = path.join(__dirname, "../frontend/dist"); //  if dist is in
 
 app.use(express.static(frontendPath));
 
-app.get("*", (req, res) => {
+app.get(/.*/,  (req, res) => {
   res.sendFile(path.resolve(frontendPath, "index.html"));
 });
 
