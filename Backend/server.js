@@ -86,19 +86,22 @@ app.get("/api/debug-cookies", (req, res) => {
 
 // Simple route to verify if backend is up & running
 
-app.get("/", (req, res) => res.send(" SigmaGPT Backend is running..."));
+/*app.get("/", (req, res) => res.send(" SigmaGPT Backend is running..."));*/
+/*app.get("/", (req, res) => res.send(" SigmaGPT Backend is running..."));*/
 
 
-
-//  Serve React Frontend (for Render)
+//  Serve React frontend (Render one-link deploy)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const frontendPath = path.join(__dirname, "../frontend/dist"); //  if dist is inside frontend folder
+// Important: build folder is inside Backend/dist
+const frontendPath = path.join(__dirname, "dist");
 
+//  Serve static files
 app.use(express.static(frontendPath));
 
-app.get(/.*/,  (req, res) => {
+//  Handle React Router routes
+app.get("*", (req, res) => {
   res.sendFile(path.resolve(frontendPath, "index.html"));
 });
 
