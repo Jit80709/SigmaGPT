@@ -1,0 +1,848 @@
+.chatWindow {
+    background-color: #212121;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+}
+
+/* navbar */
+
+.navbar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar span {
+    margin: 1rem 2rem;
+}
+
+.userIconDiv {
+    margin: 1rem 2rem;
+}
+
+.userIcon {
+    background-color: #339cff;
+    height: 25px;
+    width: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* chat input */
+.chatInput {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.inputBox {
+    width: 100%;
+    position: relative;
+    max-width: 700px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+input {
+    width: 100%;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    font-size: 0.8rem;
+    border-radius: 14px;
+    box-shadow: rgba(0, 0, 0, 0.05) 0 54px 55px,
+                rgba(0, 0, 0, 0.05) 0 -12px 30px,
+                rgba(0, 0, 0, 0.05) 0 4px 6px,
+                rgba(0, 0, 0, 0.05) 0 12px 3px,
+                rgba(0, 0, 0, 0.05) 0 -3px 5px;
+}
+
+input:focus {
+  outline: none;
+}
+
+#submit {
+    cursor: pointer;
+    height: 35px;
+    width: 35px;
+    font-size: 20px;
+    position: absolute;
+    right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#submit i:hover {
+    color: #fff;
+}
+
+.info {
+    font-size: 0.8rem;
+    padding: 0.5rem;
+    color: #b4b4b4;
+}
+
+/* dropdown css */
+
+.dropDown {
+    position: absolute;
+    top: 4rem;
+    right: 4rem;
+    width: 150px;
+
+    background-color: #323232;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    text-align: left;
+    z-index: 1000;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dropDownItem {
+    font-size: 0.9rem;
+    margin: 0.3rem 0rem;
+    padding: 0.5rem 0.2rem;
+    cursor: pointer;
+}
+
+
+.dropDownItem:hover {
+    background-color: rgba(180, 180, 180, 0.1);
+    border-radius: 6px;
+}
+
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: #222;
+  padding: 20px;
+  border-radius: 8px;
+  min-width: 300px;
+}
+
+.modal-content input {
+  width: 100%;
+  padding: 8px;
+  margin: 6px 0;
+  border-radius: 6px;
+  border: none;
+  background: #333;
+  color: white;
+}
+
+.auth-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+
+
+
+
+
+
+/*
+   EASY THEME SWITCH (Dark default)
+   Light mode when body does NOT have .dark-mode
+   Includes: navbar, sidebar, chatWindow, input, dropdown, modal
+   Paste at end of src/ChatWindow.css
+    */
+
+/* -- Default dark (leave your existing dark styles intact) -- */
+/* (No changes here — keep your current dark styles above) */
+
+/* -- LIGHT MODE (simple, readable) -- */
+body:not(.dark-mode) {
+  background: #ffffff;
+  color: #111827;
+  transition: background-color 0.28s ease, color 0.28s ease;
+}
+
+/* Navbar */
+body:not(.dark-mode) .navbar {
+  background: #f8fafc;
+  color: #111827;
+  border-bottom: 1px solid #e6eef8;
+}
+
+/* Sidebar */
+body:not(.dark-mode) .sidebar {
+  background: #f8fafc;      /* light sidebar */
+  color: #111827;
+  border-right: 1px solid #e6eef8;
+}
+
+/* Ensure sidebar children readable */
+body:not(.dark-mode) .sidebar * {
+  color: #111827 !important;
+  background: transparent !important;
+  opacity: 1 !important;
+}
+
+/* Chat area / main */
+body:not(.dark-mode) .chatWindow,
+body:not(.dark-mode) .chatArea {
+  background: #ffffff;
+  color: #111827;
+}
+
+/* Dropdown / menu */
+body:not(.dark-mode) .dropDown {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #e6eef8;
+  box-shadow: 0 6px 22px rgba(16,24,40,0.06);
+}
+body:not(.dark-mode) .dropDownItem,
+body:not(.dark-mode) .dropDownItem * {
+  color: #111827 !important;
+  opacity: 1 !important;
+}
+
+/* Chat input / footer */
+body:not(.dark-mode) .chatInput {
+  background: #ffffff;
+  border: none;
+}
+body:not(.dark-mode) .inputBox {
+  background: #ffffff;
+  border: none;
+  color: #111827;
+  border-radius: 14px;
+
+}
+body:not(.dark-mode) .chatInput input,
+body:not(.dark-mode) .chatInput textarea {
+  color: #111827 !important;
+  background: transparent !important;
+}
+
+/* Modal boxes */
+body:not(.dark-mode) .modal-content {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #e6eef8;
+  box-shadow: 0 18px 48px rgba(16,24,40,0.06);
+}
+
+/* Buttons in light mode */
+body:not(.dark-mode) button {
+  background: #f1f5f9;
+  color: #111827;
+  border: 1px solid #d1d5db;
+}
+body:not(.dark-mode) button:hover {
+  background: #e6eef8;
+}
+
+/* Make sure any faded/low-opacity text becomes readable */
+body:not(.dark-mode) .chatWindow * {
+  color: #111827 !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* Smooth transitions */
+.navbar, .sidebar, .chatWindow, .chatInput, .dropDown, .modal-content {
+  transition: background-color 0.28s ease, color 0.28s ease, border-color 0.28s ease, box-shadow 0.2s ease;
+}
+
+
+
+
+
+
+
+
+
+/*
+   LIGHT MODE FIX FOR .chats / .userMessage / .gptDiv
+   Paste at the end of src/ChatWindow.css
+  */
+
+/* Ensure chats container text readable in light-mode */
+body:not(.dark-mode) .chats {
+  background: transparent !important;
+  color: #111827 !important;
+}
+
+/* User message (your question) — light bubble + dark text */
+body:not(.dark-mode) .userMessage {
+  background: #eef2f7 !important;        /* light gray bubble */
+  color: #111827 !important;             /* dark readable text */
+  border: 1px solid #e6eef8 !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04) !important;
+  opacity: 1 !important;
+  mix-blend-mode: normal !important;
+}
+
+
+/* Ensure wrapper alignment & visibility */
+body:not(.dark-mode) .userDiv,
+body:not(.dark-mode) .gptDiv {
+  color: #111827 !important;
+  opacity: 1 !important;
+}
+
+
+
+/* If .userMessage margin pushes it off-screen on small widths,
+   reduce left margin slightly so it remains visible in light mode */
+@media (max-width: 760px) {
+  body:not(.dark-mode) .userMessage {
+    margin-left: 4rem !important; /* smaller left offset on mobile */
+    max-width: calc(100% - 5rem) !important;
+  }
+}
+
+/* Smooth transition */
+.userMessage, .gptDiv, .chats {
+  transition: background-color 0.25s ease, color 0.25s ease, opacity 0.2s ease;
+}
+
+
+
+
+/* 
+   FIX: Light Mode <pre><code> or .hljs blocks
+    */
+
+body:not(.dark-mode) pre,
+body:not(.dark-mode) code,
+body:not(.dark-mode) .hljs {
+  background: #f9fafb !important;     /* light gray background */
+  color: #111827 !important;          /* dark readable text */
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+  padding: 12px 16px !important;
+  overflow-x: auto !important;
+}
+
+/* inline code elements inside paragraphs */
+body:not(.dark-mode) p code {
+  background: #eef2f7 !important;
+  color: #1e293b !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+}
+
+/* Ensure syntax highlighting text visible */
+body:not(.dark-mode) .hljs-keyword,
+body:not(.dark-mode) .hljs-string,
+body:not(.dark-mode) .hljs-built_in,
+body:not(.dark-mode) .hljs-title {
+  color: #1e293b !important;
+  opacity: 1 !important;
+}
+
+/* remove dark blur on light mode */
+body:not(.dark-mode) .hljs * {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+
+/* === Remove extra top/outer border around code blocks === */
+body:not(.dark-mode) pre,
+body:not(.dark-mode) code,
+body:not(.dark-mode) .hljs {
+  border-top: none !important;     /* removes top border */
+  border-left: none !important;    /* optional: removes left if any */
+  border-right: none !important;   /* optional */
+  border-bottom: none !important;  /* optional */
+  outline: none !important;        /* removes focus outline if any */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important; /* keeps soft shadow */
+}
+
+/* make sure no parent element is drawing border */
+body:not(.dark-mode) .gptDiv pre {
+  border: none !important;
+  outline: none !important;
+}
+
+
+
+
+
+
+
+
+
+
+/* 
+   Settings modal: cleaned styles
+   Paste at end of src/ChatWindow.css
+   */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  background: rgba(2,6,23,0.45);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+/* Card */
+.modal-content {
+  width: 420px;
+  max-width: calc(100% - 32px);
+  background: var(--modal-bg, #ffffff);
+  color: var(--modal-text, #0f172a);
+  border-radius: 10px;
+  padding: 24px 26px;
+  box-shadow: 0 18px 40px rgba(2,6,23,0.32);
+  border: 1px solid rgba(15,23,42,0.06);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Heading */
+.modal-content h3 {
+  font-size: 1.25rem;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+/* Section titles: Profile, Theme */
+.modal-content p strong {
+  display: block;
+  font-size: 1rem;
+  margin-top: 6px;
+  margin-bottom: 6px;
+  color: rgba(15,23,42,0.9);
+}
+
+/* Profile text */
+.modal-content > div p {
+  margin: 0;
+  line-height: 1.6;
+  color: rgba(15,23,42,0.88);
+}
+
+/* Buttons - consistent width + visual style */
+.modal-content button {
+  display: inline-block;
+  width: 100%;
+  max-width: 220px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(15,23,42,0.08);
+  background: #f1f5f9;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(2,6,23,0.06);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  margin: 6px 0;
+}
+
+/* Primary hover */
+.modal-content button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(2,6,23,0.08);
+  background: #e6eef8;
+}
+
+/* Small centered stack for Clear/Close */
+.modal-content .stack {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* Make sure inputs (if any) look neat */
+.modal-content input {
+  width: 100%;
+  max-width: 280px;
+  padding: 9px 10px;
+  margin-top: 6px;
+  border-radius: 8px;
+  border: 1px solid rgba(15,23,42,0.08);
+  background: #fbfdff;
+  box-sizing: border-box;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .modal-content { width: 94%; padding: 18px; }
+  .modal-content button { max-width: 100%; }
+}
+
+/* Dark mode tweaks (if body.dark-mode exists) */
+body.dark-mode .modal-content {
+  --modal-bg: #071124; /* subtle dark card */
+  --modal-text: #e6eef8;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+body.dark-mode .modal-content p strong,
+body.dark-mode .modal-content > div p {
+  color: #e6eef8;
+}
+body.dark-mode .modal-content button {
+  background: rgba(255,255,255,0.04);
+  color: #e6eef8;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 8px 18px rgba(2,6,23,0.08);
+}
+body.dark-mode .modal-content button:hover { background: rgba(255,255,255,0.06); }
+
+
+
+
+
+
+
+
+
+/*
+   Auth Modal (Login/Register)
+   Optimized but same design
+   */
+
+.modal-content {
+  background: var(--auth-bg, #0b1221); /* deep navy for dark mode */
+  color: #f8fafc;
+  border-radius: 12px;
+  padding: 28px 32px;
+  min-width: 340px;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.3s ease;
+  animation: modalPop 0.3s ease;
+}
+
+.modal-content h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 18px;
+}
+
+/* Input fields */
+.modal-content input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.modal-content input:focus {
+  border-color: #4dabff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Login/Register Button */
+.modal-content button {
+  width: 100%;
+  background: linear-gradient(180deg, #1e293b, #0f172a);
+  border: none;
+  color: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.2s ease;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content button:hover {
+  background: linear-gradient(180deg, #334155, #1e293b);
+  transform: translateY(-2px);
+}
+
+/* Blur overlay background */
+.modal {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+}
+
+/* Fade-in animation */
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ---------- Light Mode Version ---------- */
+body:not(.dark-mode) .modal-content {
+  --auth-bg: #ffffff;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 25px rgba(16, 24, 40, 0.1);
+}
+
+body:not(.dark-mode) .modal-content input {
+  background: #f8fafc;
+  color: #111827;
+  border: 1px solid #d1d5db;
+}
+
+body:not(.dark-mode) .modal-content button {
+  background: linear-gradient(180deg, #f3f4f6, #e5e7eb);
+  color: #111827;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+body:not(.dark-mode) .modal-content button:hover {
+  background: linear-gradient(180deg, #e5e7eb, #d1d5db);
+}
+
+
+
+
+
+/* Input Box — same size, mic & send inside neatly */
+.inputBox {
+  width: 100%;
+  max-width: 700px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0 54px 55px,
+              rgba(0, 0, 0, 0.05) 0 -12px 30px,
+              rgba(0, 0, 0, 0.05) 0 4px 6px,
+              rgba(0, 0, 0, 0.05) 0 12px 3px,
+              rgba(0, 0, 0, 0.05) 0 -3px 5px;
+}
+
+/* Input stays the same size */
+.inputBox input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 16px 85px 16px 20px; /* space on right for mic + send */
+  font-size: 0.9rem;
+  border-radius: 14px;
+  color: inherit;
+}
+
+.inputBox input:focus {
+  outline: none;
+}
+
+/* Mic and Send Buttons Inside Input */
+#mic, #submit {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 30px;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+  font-size: 1.1rem;
+}
+
+/*  Mic before send */
+#mic {
+  right: 45px;
+}
+
+/* Send after mic */
+#submit {
+  right: 10px;
+}
+
+/* Icon colors and hover */
+#mic i, #submit i {
+  color: #b4b4b4;
+  transition: color 0.3s ease;
+}
+
+#mic:hover i, #submit:hover i {
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+/* Recording pulse effect */
+#mic i.active {
+  color: red;
+  animation: pulse 1s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Light Mode Adjustments */
+body:not(.dark-mode) .inputBox {
+  background: #ffffff;
+}
+
+body:not(.dark-mode) #mic i,
+body:not(.dark-mode) #submit i {
+  color: #111827;
+}
+
+body:not(.dark-mode) #mic:hover i,
+body:not(.dark-mode) #submit:hover i {
+  color: #2563eb;
+}
+
+body:not(.dark-mode) #mic i.active {
+  color: #ef4444;
+}
+
+
+
+
+/*
+    Simple Confirmation Modal (Lightweight Version)
+ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.confirm-modal {
+  background-color: #1f1f1f;
+  border-radius: 10px;
+  padding: 25px 30px;
+  text-align: center;
+  width: 340px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+  color: #fff;
+  animation: popUp 0.25s ease;
+}
+
+.confirm-modal h3 {
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #fff;
+}
+
+.confirm-modal p {
+  margin-bottom: 18px;
+  color: #ccc;
+  font-size: 14px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.confirm-btn,
+.cancel-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.25s;
+}
+
+.confirm-btn {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.confirm-btn:hover {
+  background-color: #e04343;
+}
+
+.cancel-btn {
+  background-color: #333;
+  color: #ddd;
+}
+
+.cancel-btn:hover {
+  background-color: #444;
+}
+
+/* Simple Animation */
+@keyframes popUp {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+
+.confirm-modal {
+  background-color: var(--modal-bg);
+  color: var(--modal-text);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode {
+  --modal-bg: #1e1e1e;
+  --modal-text: #ffffff;
+}
+
+body:not(.dark-mode) {
+  --modal-bg: #ffffff;
+  --modal-text: #111111;
+}

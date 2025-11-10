@@ -1,0 +1,66 @@
+/*
+   Chat Message Area Styling
+   This section controls the chat message container,
+   scroll behavior, and message appearance for both
+   user and AI (GPT) responses.
+   
+
+/* Main chat container */
+.chats {
+    max-width: 700px;         /* Limit chat width for better readability */
+    overflow-y: auto;         /* Enable vertical scrolling */
+    padding: 8rem;            /* Give spacing around chat area */
+
+    /* Hide default scrollbar for a clean, modern look */
+    -ms-overflow-style: none; /* IE/Edge compatibility */
+    scrollbar-width: none;    /* Firefox compatibility */
+}
+
+/* Hide scrollbar for WebKit browsers (Chrome, Safari, etc.) */
+.chats::-webkit-scrollbar {
+    display: none;
+}
+
+
+   /* User Message Section
+   
+
+/* Container for user messages (aligned right) */
+.userDiv {
+    display: flex;
+    justify-content: flex-end; /* Align messages to the right */
+    font-size: 0.9rem;         /* Slightly smaller text */
+}
+
+/* User message bubble styling */
+.userMessage {
+    background-color: #323232; /* Dark grey bubble color */
+    padding: 10px 20px;        /* Inner spacing for better readability */
+    border-radius: 14px;       /* Rounded bubble corners */
+    margin-left: 15rem;        /* Create left gap (align to right visually) */
+    max-width: 500px;          /* Limit bubble width */
+    width: fit-content;        /* Auto width based on text size */
+}
+
+
+   /* GPT (Assistant) Message Section
+  
+/* GPT messages aligned left (default text alignment) */
+.gptDiv {
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+/* =========================================================
+   🧩 Code Block Formatting (for AI-generated code)
+   ========================================================= */
+
+/* Highlight.js code block styling (preserves rounded corners) */
+.hljs {
+    border-radius: 14px !important;
+}
+
+/* Preserve line breaks and formatting for code output */
+pre {
+    white-space: pre-wrap;
+}
