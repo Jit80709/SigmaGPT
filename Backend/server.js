@@ -8,6 +8,9 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import path from "path";
+import { fileURLToPath } from "url";
+
 
 //  Import all routes
 import chatRoutes from "./routes/chat.js";
@@ -85,6 +88,19 @@ app.get("/api/debug-cookies", (req, res) => {
 
 app.get("/", (req, res) => res.send(" SigmaGPT Backend is running..."));
 
+
+
+//  Serve React frontend build (very important for single deploy)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve the React build files
+app.use(express.static(path.join(__dirname, "dist")));
+
+// Handle React routing, return all requests to index.html
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
 
 // Launches Express app on PORT (default: 8080)
 
