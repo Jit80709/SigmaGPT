@@ -32,9 +32,11 @@ app.use(cookieParser());
 // Serve uploads folder
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-//  UNIVERSAL CORS (Local + Render)
+//  UNIVERSAL CORS (Local + Render + Self)
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  process.env.BASE_URL, // <-- add this line
+  "https://sigmagpt-backend-lkc4.onrender.com", // <-- direct self URL
   "http://localhost:5173",
   "http://127.0.0.1:5173",
 ].filter(Boolean);
