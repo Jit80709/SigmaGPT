@@ -449,7 +449,7 @@ function ChatWindow() {
         </div>
 
         {isRecording && <p className="info"> SigmaGPT is listening...</p>}
-        <p className="info">SigmaGPT can make mistakes. Verify important info.</p>
+        <p className="info">SigmaGPT can make mistakes. Check important info. See Cookie Preferences.</p>
       </div>
 
       {/*  Modals */}
