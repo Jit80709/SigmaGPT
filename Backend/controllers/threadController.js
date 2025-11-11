@@ -66,24 +66,40 @@ export const getThreadById = async (req, res) => {
 
 export const deleteThread = async (req, res) => {
   try {
-    const { threadId } = req.params;
-    const userId = req.user.userId;
+    const threadId = req.params.threadId?.trim();
+    const userId = req.user?.userId;
 
-    //  Find and delete the thread document for the logged-in user
-    const thread = await Thread.findOneAndDelete({ threadId, userId });
-
-    //  If thread not found, respond with error
-    if (!thread) {
-      return res.status(404).json({ message: "Thread not found" });
+    //  Authorization check
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized: missing user info" });
     }
 
-    //  Delete all messages belonging to that thread
-    await Message.deleteMany({ threadId, userId });
+    //  Find and delete thread
+    const thread = await Thread.findOneAndDelete({ threadId, userId });
 
-    //  Confirmation response
-    res.json({ message: "Thread deleted successfully" });
+    if (!thread) {
+      return res.status(404).json({ success: false, message: "Thread not found or not owned by user" });
+    }
+
+    //  Delete all related messages
+    const deletedMessages = await Message.deleteMany({ threadId, userId });
+
+    console.log(` Thread deleted: ${threadId}, Messages removed: ${deletedMessages.deletedCount}`);
+
+    //  Send structured response
+    return res.status(200).json({
+      success: true,
+      message: "Thread deleted successfully",
+      threadId,
+      deletedMessages: deletedMessages.deletedCount,
+    });
+
   } catch (err) {
-    console.error("Delete thread error:", err);
-    res.status(500).json({ message: "Error deleting thread" });
+    console.error(" Delete thread error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Error deleting thread",
+      error: err.message,
+    });
   }
 };

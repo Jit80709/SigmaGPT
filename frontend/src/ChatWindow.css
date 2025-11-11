@@ -846,3 +846,194 @@ body:not(.dark-mode) {
   --modal-bg: #ffffff;
   --modal-text: #111111;
 }
+
+
+
+
+/* 
+    SigmaGPT Chat Window — Final Polished Responsive Version
+    */
+
+.chatWindow {
+  background-color: #212121;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+/*  Navbar Section */
+.navbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+}
+
+.navbar span {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.userIconDiv {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.userIcon i {
+  font-size: 1.4rem;
+  color: white;
+}
+
+/*  Chat Section */
+.chats {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem 1rem;
+  scroll-behavior: smooth;
+}
+
+.chats::-webkit-scrollbar {
+  display: none;
+}
+
+/*  Chat Input Section */
+.chatInput {
+  position: sticky;
+  bottom: 0;
+  background-color: #171717;
+  padding: 0.6rem 1rem;
+}
+
+/*  Start a New Chat Heading */
+h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+  color: #fff;
+  margin-top: 2rem;
+}
+
+
+
+
+
+/* 
+   SigmaGPT Chat Window — Final Mobile Polished Design
+   */
+
+.chatWindow {
+  background-color: #212121;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+/*  Navbar */
+.navbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+}
+
+.navbar span {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.userIconDiv {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.userIcon i {
+  font-size: 1.4rem;
+  color: white;
+}
+
+/*  Chats */
+.chats {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem 1rem;
+  scroll-behavior: smooth;
+}
+
+.chats::-webkit-scrollbar {
+  display: none;
+}
+
+/* 🔹 Chat Input */
+.chatInput {
+  position: sticky;
+  bottom: 0;
+  background-color: #171717;
+  padding: 0.5rem 0.8rem;
+}
+
+/*
+  Responsive (Mobile)
+    */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.6rem 0.8rem;
+  }
+
+  .navbar span {
+    font-size: 1.2rem; /* SigmaGPT a bit bigger */
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  .userIconDiv i {
+    font-size: 1.2rem;
+  }
+
+  h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 1rem;
+  }
+
+  .chatWindow {
+    height: 100vh;
+  }
+
+  .chats {
+    padding: 1.2rem 0.7rem;
+  }
+
+  .userDiv p,
+  .gptDiv p {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar span {
+    font-size: 1.25rem;
+  }
+
+  .userIcon i {
+    font-size: 1.1rem;
+  }
+
+  .chats {
+    padding: 1rem 0.5rem;
+  }
+}

@@ -64,3 +64,70 @@
 pre {
     white-space: pre-wrap;
 }
+
+
+
+
+/* ==========================================================
+   📱 Responsive Chat Layout (No Design Change)
+   ========================================================== */
+
+@media (max-width: 1024px) {
+  .chats {
+    max-width: 90%;
+    padding: 4rem;
+  }
+  .userMessage {
+    max-width: 70%;
+    margin-left: 8rem;
+  }
+}
+
+/* Tablets and smaller laptops */
+@media (max-width: 768px) {
+  .chats {
+    padding: 2rem;
+    max-width: 100%;
+    height: calc(100vh - 180px); /* ensure scroll inside chat */
+    overflow-y: auto;
+  }
+
+  .userMessage {
+    max-width: 85%;
+    margin-left: 3rem; /* reduce left space */
+    font-size: 0.85rem;
+    padding: 8px 14px;
+  }
+
+  .gptDiv {
+    font-size: 0.85rem;
+  }
+
+  pre, code {
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+}
+
+/* Small phones (portrait) */
+@media (max-width: 480px) {
+  .chats {
+    padding: 1rem;
+    height: calc(100vh - 160px);
+  }
+
+  .userMessage {
+    max-width: 95%;
+    margin-left: 1.5rem; /* minimal gap on mobile */
+    font-size: 0.8rem;
+  }
+
+  .gptDiv {
+    font-size: 0.8rem;
+  }
+
+  pre, code {
+    font-size: 0.75rem;
+  }
+}

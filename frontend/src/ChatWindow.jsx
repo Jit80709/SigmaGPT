@@ -1,11 +1,11 @@
+//  SigmaGPT — Final Voice + Chat Stable Version (Multilingual + Deploy Ready)
 
-//  SigmaGPT — Final Stable Voice + Chat + Upgrade Modal Version
-// Includes:
-//   Voice recording using Web APIs
-//   Text-based chat integrated with backend
-//  Theme toggle (Dark/Light)
-//   Auth Modals + Upgrade popup
-//  Toast notifications + Custom confirmation modal
+//  Features:
+// - Text + Voice chat (Bengali, Hindi, English auto-detect)
+// - Voice-to-Text (Whisper), AI Reply (GPT), Text-to-Speech (TTS)
+// - Authenticated chat threads
+// - Theme Switcher, Toast Alerts, Smooth UI
+// - Fully deployable (localhost + Render compatible)
 
 
 import "./ChatWindow.css";
@@ -20,10 +20,7 @@ import AuthForm from "./components/AuthForm.jsx";
 import { v1 as uuidv1 } from "uuid";
 
 function ChatWindow() {
-  
-  //  CONTEXT & STATE MANAGEMENT
-  // Accessing global chat variables using MyContext
-  
+  //  Context values — shared across the app
   const {
     prompt, setPrompt,
     reply, setReply,
@@ -33,14 +30,12 @@ function ChatWindow() {
     refreshThreads
   } = useContext(MyContext);
 
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuth(); //  User Authentication Context
 
-  // Local state management
+  //  Local component states
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-
-  // Modal states
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -48,69 +43,72 @@ function ChatWindow() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
 
-  // Refs for recording
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
-  
-  //  VOICE RECORDING SYSTEM
-  // Uses Web MediaRecorder API to record user's voice,
-  // send it to backend, and get the AI-generated response.
-  
+  //  Auto-detect backend URL (works both local + deployed)
+  const BACKEND_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:8080"
+      : import.meta.env.VITE_BACKEND_URL;
+
+  //  Voice Recording + AI Processing Flow
+
   const startRecording = async () => {
     if (!user) {
-      toast.warn(" Please login before using the microphone!");
+      toast.warn("Please login before using the microphone!");
       return;
     }
 
     try {
-      // Ask browser for microphone permission
+      //  Step 1: Request mic access
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream);
       mediaRecorderRef.current.start();
       setIsRecording(true);
-      setReply(" Listening...");
+      setReply("Listening...");
       audioChunksRef.current = [];
 
-      // Collect audio data chunks
+      //  Step 2: Store recorded audio chunks
       mediaRecorderRef.current.addEventListener("dataavailable", (e) => {
         audioChunksRef.current.push(e.data);
       });
 
-      // When recording stops
+      //  Step 3: When recording stops → send to backend for transcription + reply
       mediaRecorderRef.current.addEventListener("stop", async () => {
-        setReply(" Processing your voice...");
+        setReply("Processing your voice...");
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         const formData = new FormData();
         formData.append("audio", audioBlob, "voice.webm");
 
         try {
-          // Send audio to backend for transcription & AI response
-          const response = await fetch("http://localhost:8080/api/voice", {
+          // Send recorded voice to backend
+          const response = await fetch(`${BACKEND_URL}/api/voice`, {
             method: "POST",
             body: formData,
+            credentials: "include",
           });
 
           if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
           const data = await response.json();
 
+          //  If AI couldn’t transcribe properly
           if (!data.text) {
-            setReply(" Sorry, I couldn’t understand your voice. Please try again.");
+            setReply("Sorry, I couldn’t understand your voice. Please try again.");
             return;
           }
 
-          const detectedLang = data.language || "en";
-          console.log(" Frontend Detected Language:", detectedLang);
+          console.log(" Detected Language:", data.language || "en");
 
-          // Save user voice input and AI reply to chat window
+          //  Update UI chat messages
           if (data.userText)
             setPrevChats((prev) => [...prev, { role: "user", content: data.userText }]);
 
           setPrevChats((prev) => [...prev, { role: "assistant", content: data.text }]);
           setReply(data.text);
 
-          // Also save this message to backend thread
-          await fetch("/api/chat", {
+          //  Save chat to backend database
+          await fetch(`${BACKEND_URL}/api/chat`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
@@ -120,29 +118,35 @@ function ChatWindow() {
             }),
           });
 
+          //  Refresh thread list in sidebar
           if (typeof refreshThreads === "function") refreshThreads();
 
-          // Play audio response from backend (if available)
+          //  Play AI voice reply
           if (data.audioUrl) {
             const audio = new Audio(data.audioUrl);
-            audio.play();
+            try {
+              audio.pause();
+              audio.currentTime = 0;
+              await audio.play();
+            } catch (err) {
+              console.warn("Audio playback blocked:", err);
+            }
           }
-
         } catch (err) {
-          console.error(" Voice fetch error:", err);
-          setReply(" There was an error processing your voice. Please try again.");
+          console.error("Voice fetch error:", err);
+          setReply("There was an error processing your voice. Please try again.");
         }
       });
 
-      // Auto stop after 5 seconds
-      setTimeout(() => stopRecording(), 5000);
+      //  Auto-stop after 6 seconds (user convenience)
+      setTimeout(() => stopRecording(), 6000);
     } catch (err) {
-      console.error(" Microphone error:", err);
-      toast.error(" Please allow microphone access to use this feature.");
+      console.error("Microphone error:", err);
+      toast.error("Please allow microphone access to use this feature.");
     }
   };
 
-  // Stop voice recording manually
+  //  Stop Voice Recording
   const stopRecording = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
       mediaRecorderRef.current.stop();
@@ -150,9 +154,7 @@ function ChatWindow() {
     setTimeout(() => setIsRecording(false), 300);
   };
 
-  
-  //  THEME HANDLING (Dark / Light)
-  
+  //  Theme Handler (Dark/Light)
   useEffect(() => {
     const saved = localStorage.getItem("sigmaTheme");
     if (saved === "light") {
@@ -165,7 +167,6 @@ function ChatWindow() {
     }
   }, []);
 
-  // Toggle between light & dark modes
   const toggleTheme = () => {
     const isDark = document.body.classList.contains("dark-mode");
     if (isDark) {
@@ -179,40 +180,40 @@ function ChatWindow() {
     }
   };
 
-  // =====================================================
-  //  FETCH THREADS (Chat history list for sidebar)
-  
+  //  Fetch all previous chat threads from backend
   useEffect(() => {
     const fetchThreads = async () => {
       if (!user) {
         setPrevChats([]);
         return;
       }
-
       try {
-        let res = await fetch("/api/thread", {
+        let res = await fetch(`${BACKEND_URL}/api/thread`, {
           method: "GET",
           credentials: "include",
         });
 
-        // Auto-refresh token if expired
+        //  Refresh token flow (auto-login recovery)
         if (res.status === 401) {
-          const refresh = await fetch("/api/auth/refresh", {
+          const refresh = await fetch(`${BACKEND_URL}/api/auth/refresh`, {
             method: "POST",
             credentials: "include",
           });
           if (refresh.ok) {
-            res = await fetch("/api/thread", { method: "GET", credentials: "include" });
+            res = await fetch(`${BACKEND_URL}/api/thread`, {
+              method: "GET",
+              credentials: "include",
+            });
           } else {
+            toast.warn(" Session expired. Please log in again.");
             logout();
             return;
           }
         }
 
         const data = await res.json();
-        if (Array.isArray(data)) {
+        if (Array.isArray(data))
           setAllThreads(data.map((t) => ({ threadId: t.threadId, title: t.title })));
-        }
       } catch (err) {
         console.warn("Thread fetch error:", err);
         setPrevChats([]);
@@ -222,17 +223,15 @@ function ChatWindow() {
     fetchThreads();
   }, [user]);
 
- 
-  //  TEXT CHAT FUNCTIONALITY (User → AI)
-  
+  //  Text Chat Flow (AI conversation)
   const getReply = async () => {
     if (!user) {
-      toast.warn(" Please login first!");
+      toast.warn("Please login first!");
       return;
     }
     if (!prompt.trim()) return;
 
-    // Add user question to chat UI
+    //  Add user message to UI instantly
     setPrevChats((prev) => [...prev, { role: "user", content: prompt }]);
     const userPrompt = prompt;
     setPrompt("");
@@ -240,36 +239,37 @@ function ChatWindow() {
     setNewChat(false);
 
     try {
-      // Send text message to backend
-      let response = await fetch("/api/chat", {
+      // Send user query to backend
+      let response = await fetch(`${BACKEND_URL}/api/chat`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userPrompt, threadId: currThreadId }),
       });
 
-      // Refresh token if expired
+      //  Refresh session if expired
       if (response.status === 401) {
-        const refresh = await fetch("/api/auth/refresh", {
+        const refresh = await fetch(`${BACKEND_URL}/api/auth/refresh`, {
           method: "POST",
           credentials: "include",
         });
         if (refresh.ok) {
-          response = await fetch("/api/chat", {
+          response = await fetch(`${BACKEND_URL}/api/chat`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: userPrompt, threadId: currThreadId }),
           });
         } else {
+          toast.warn(" Session expired. Please log in again.");
           logout();
           setLoading(false);
           return;
         }
       }
 
-      // Append AI reply
       const res = await response.json();
+      //  Display AI reply in chat window
       setPrevChats((prev) => [...prev, { role: "assistant", content: res.reply }]);
       setReply(res.reply);
       if (typeof refreshThreads === "function") refreshThreads();
@@ -280,29 +280,28 @@ function ChatWindow() {
     setLoading(false);
   };
 
-  
-  //  CLEAR CHAT HISTORY (Custom Confirmation Modal)
-  
+  // Chat History Management
   const handleClearHistory = () => {
     if (!user) {
-      toast.warn(" Please login first!");
+      toast.warn("Please login first!");
       return;
     }
     setShowConfirmModal(true);
   };
 
+  //  Confirm deletion of chat history
   const confirmClearChats = async () => {
     try {
       setIsClearing(true);
-      const response = await fetch("/api/thread/clear", {
+      const response = await fetch(`${BACKEND_URL}/api/thread/clear`, {
         method: "DELETE",
         credentials: "include",
       });
 
       const result = await response.json();
-      if (!response.ok || !result.success) throw new Error(result.message || "Failed to clear chats");
+      if (!response.ok || !result.success)
+        throw new Error(result.message || "Failed to clear chats");
 
-      // Reset UI after clearing
       setPrevChats([]);
       setAllThreads([]);
       setNewChat(true);
@@ -311,19 +310,17 @@ function ChatWindow() {
       setCurrThreadId(uuidv1());
       if (typeof refreshThreads === "function") refreshThreads();
 
-      toast.success(" All chat history cleared successfully!");
+      toast.success("All chat history cleared!");
     } catch (err) {
-      console.error(" Error clearing chat history:", err);
-      toast.error(" Failed to clear chat history!");
+      console.error("Clear history error:", err);
+      toast.error("Failed to clear chat history!");
     } finally {
       setIsClearing(false);
       setShowConfirmModal(false);
     }
   };
 
-  // =====================================================
-  // ⚙️ MODALS (Settings & Upgrade)
-  // =====================================================
+  //  Settings and Upgrade Modals
   const SettingsModal = () => (
     <div className="modal">
       <div className="modal-content">
@@ -337,7 +334,9 @@ function ChatWindow() {
           <p>Please login to view your profile.</p>
         )}
         <button onClick={toggleTheme}>
-          {document.body.classList.contains("dark-mode") ? "Switch to Light Mode " : "Switch to Dark Mode "}
+          {document.body.classList.contains("dark-mode")
+            ? "Switch to Light Mode"
+            : "Switch to Dark Mode"}
         </button>
         <button onClick={() => setShowSettings(false)}>Close</button>
       </div>
@@ -350,18 +349,20 @@ function ChatWindow() {
         <h3>💎 Upgrade Plan</h3>
         <p><strong>Free:</strong> Limited usage.</p>
         <p><strong>Pro:</strong> Unlimited, faster responses.</p>
-        <button onClick={() => toast.info(" Upgrade feature not implemented.")}>Upgrade to Pro</button>
+        <button onClick={() => toast.info("Upgrade feature coming soon!")}>
+          Upgrade to Pro
+        </button>
         <button onClick={() => setShowUpgrade(false)}>Close</button>
       </div>
     </div>
   );
 
   
-  //  UI LAYOUT
+  //  Frontend UI Section
   
   return (
     <div className="chatWindow">
-      {/* 🔹 Navbar Section */}
+      {/*  Navbar */}
       <div className="navbar">
         <span>SigmaGPT <i className="fa-solid fa-chevron-down"></i></span>
         <div className="userIconDiv" onClick={() => setIsOpen(!isOpen)}>
@@ -369,12 +370,12 @@ function ChatWindow() {
         </div>
       </div>
 
-      {/*  Dropdown Menu */}
+      {/*  Dropdown Menu (User / Auth options) */}
       {isOpen && (
         <div className="dropDown">
           {user ? (
             <>
-              <div className="dropDownItem"> {user?.name}</div>
+              <div className="dropDownItem">{user?.name}</div>
               <div className="dropDownItem" onClick={() => { setShowSettings(true); setIsOpen(false); }}>
                 <i className="fa-solid fa-gear" /> Settings
               </div>
@@ -401,55 +402,61 @@ function ChatWindow() {
         </div>
       )}
 
-      {/* 🔹 Chat Messages */}
+      {/*  Chat Component */}
       <Chat />
 
-      {/*  Loader (while AI is replying) */}
+      {/*  Loading Animation */}
       {loading && (
         <div className="loader">
-          <ScaleLoader 
-            color={theme === "dark" ? "#ffffff" : "#000000"} 
-            loading={loading} 
-            height={18} 
-            width={4} 
+          <ScaleLoader
+            color={theme === "dark" ? "#fff" : "#000"}
+            loading={loading}
+            height={18}
+            width={4}
           />
         </div>
       )}
 
-      {/*  Chat Input + Mic */}
+      {/*  Chat Input Section */}
       <div className="chatInput">
         <div className="inputBox">
           <input
             placeholder={user ? "Ask or speak..." : "Login to start chatting..."}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={(e) => (e.key === "Enter" ? getReply() : null)}
+            onKeyDown={(e) => e.key === "Enter" && getReply()}
             disabled={!user}
           />
+          {/* 🎤 Mic Control */}
           <div
             id="mic"
             onClick={() => (isRecording ? stopRecording() : startRecording())}
-            style={{ opacity: user ? 1 : 0.4, cursor: user ? "pointer" : "not-allowed" }}
+            style={{ opacity: user ? 1 : 0.4 }}
           >
-            <i className={`fa-solid ${isRecording ? "fa-microphone" : "fa-microphone-slash"}`} style={{
-              color: isRecording ? "red" : "white",
-              transition: "0.3s",
-              transform: isRecording ? "scale(1.2)" : "scale(1)",
-            }}></i>
+            <i
+              className={`fa-solid ${isRecording ? "fa-microphone" : "fa-microphone-slash"}`}
+              style={{
+                color: isRecording ? "red" : "white",
+                transition: "0.3s",
+                transform: isRecording ? "scale(1.2)" : "scale(1)",
+              }}
+            />
           </div>
+          {/*  Send Button */}
           <div id="submit" onClick={getReply} style={{ opacity: user ? 1 : 0.4 }}>
             <i className="fa-solid fa-paper-plane"></i>
           </div>
         </div>
+
         {isRecording && <p className="info"> SigmaGPT is listening...</p>}
-        <p className="info">SigmaGPT can make mistakes. Check important info. See Cookie Preferences.</p>
+        <p className="info">SigmaGPT can make mistakes. Verify important info.</p>
       </div>
 
-      {/*  Modals Section */}
+      {/*  Modals */}
       {showSettings && <SettingsModal />}
       {showUpgrade && <UpgradeModal />}
 
-      {/* Login/Register Popup */}
+      {/*  Login/Register */}
       {showLogin && (
         <div className="modal">
           <div className="modal-content">
@@ -458,6 +465,7 @@ function ChatWindow() {
           </div>
         </div>
       )}
+
       {showRegister && (
         <div className="modal">
           <div className="modal-content">
@@ -467,11 +475,11 @@ function ChatWindow() {
         </div>
       )}
 
-      {/*  Custom Confirmation Modal */}
+      {/* 🧹 Clear Chat Confirmation */}
       {showConfirmModal && (
         <div className="modal-overlay">
           <div className="confirm-modal">
-            <h3> Clear Chat History?</h3>
+            <h3>Clear Chat History?</h3>
             <p>This will permanently delete all chats.</p>
             <div className="modal-buttons">
               <button className="confirm-btn" onClick={confirmClearChats} disabled={isClearing}>
@@ -485,7 +493,7 @@ function ChatWindow() {
         </div>
       )}
 
-      {/*  Toast Container (Notifications) */}
+      {/*  Toast Notifications */}
       <ToastContainer position="bottom-right" autoClose={3000} theme={theme === "dark" ? "dark" : "light"} />
     </div>
   );

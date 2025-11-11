@@ -1,125 +1,205 @@
+/* 
+SigmaGPT Sidebar — Clean Final Responsive */
+
 .sidebar {
   background-color: #171717;
   color: #b4b4b4;
   height: 100vh;
-  width: 320px;
+  width: 280px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
+/*  New Chat Button */
 button {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 10px;
-  padding: 10px;
-  border-radius: 5px;
+  padding: 10px 14px;
+  border-radius: 6px;
   background-color: transparent;
   border: solid 0.5px rgba(255, 255, 255, 0.5);
   cursor: pointer;
-}
-
-.logo {
-  height: 25px;
-  width: 25px;
-  background-color: #fff;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-button span {
-  font-size: 20px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
 }
 
 button:hover {
   background-color: rgba(180, 180, 180, 0.05);
 }
 
-.history {
-  margin: 10px;
-  padding: 10px;
-  height: 100%;
+.logo {
+  height: 26px;
+  width: 26px;
+  background-color: #fff;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
+button h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0 6px;
+}
+/*  History Container */
+.history {
+  margin: 8px;
+  padding: 6px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/*  Each Chat Title */
 .history li {
   list-style-type: none;
   cursor: pointer;
-  padding: 2px 5px;
-  margin-bottom: 0.3rem;
-  font-size: 14px;
-  border: solid 10px transparent;
+  padding: 6px 26px 6px 12px; /* space for delete */
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  border-radius: 8px;
   position: relative;
-  transition: background-color 0.2s ease-in-out;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
 }
 
+/* Hover effect */
 .history li:hover {
-  background-color: rgba(180, 180, 180, 0.05);
-  border-radius: 10px;
+  background-color: rgba(180, 180, 180, 0.08);
+}
+
+/* Text inside history */
+.history li span {
+  color: #e0e0e0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*  Delete Icon */
+.history li i.fa-trash {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.3s ease, color 0.3s ease;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+}
+
+/* Hover effect (both mobile + desktop) */
+.history li:hover i.fa-trash {
+  opacity: 1;
+  color: #f87171;
 }
 
 .sign {
   padding: 10px;
-  margin: 10px;
-  font-size: 14px;
   text-align: center;
-  border-top: solid 0.25px rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.highlighted {
-  background-color: rgba(180, 180, 180, 0.05);
-  border-radius: 10px;
+/* 
+ Responsive (Mobile)
+ */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 85px;
+    min-width: 85px;
+    padding: 10px 0;
+  }
+
+  button {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 4px;
+    font-size: 0.8rem;
+  }
+
+  button h3 {
+    font-size: 0.8rem;
+    margin-top: 4px;
+  }
+
+  .logo {
+    height: 20px;
+    width: 20px;
+  }
+
+  /*  Half text visible */
+  .history li {
+    font-size: 0.85rem;
+    padding: 6px 24px 6px 6px;
+  }
+
+  .history li span {
+    display: inline-block;
+    max-width: 65px; /* Half visible text */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Delete icon hidden until hover */
+  .history li i.fa-trash {
+    opacity: 0;
+    right: 5px;
+    font-size: 0.8rem;
+  }
+
+  .history li:hover i.fa-trash {
+    opacity: 1;
+    color: #f87171;
+  }
+
+  .sign {
+    font-size: 0.7rem;
+  }
 }
 
-/* ☀️ Light Mode — make top border visible gray */
-body:not(.dark-mode) .sign {
-  border-top: 1px solid #d1d5db !important;
-  color: #6b7280 !important;
-  background-color: #ffffff !important;
-  padding-top: 0.5rem;
-  text-align: center;
-  transition: all 0.25s ease;
+@media (max-width: 480px) {
+  .sidebar {
+    width: 70px;
+  }
+
+  .logo {
+    height: 18px;
+    width: 18px;
+  }
+
+  .history li span {
+    max-width: 55px;
+  }
+
+  .history li i.fa-trash {
+    font-size: 0.75rem;
+  }
 }
 
-/* ======================================================
-   🗑 Delete icon fade-in/out fix (clean + smooth)
-   ====================================================== */
 
-/* hide by default */
-.history li i.fa-trash {
-  opacity: 0;
+
+
+
+/* Light mode এ delete icon hidden by default */
+body:not(.dark-mode) .history li i.fa-trash {
+  opacity: 0; /*  hidden by default */
   visibility: hidden;
-  position: absolute;
-  right: 0;
+  color: rgba(0, 0, 0, 0.6); /* subtle grey tone */
   transition:
-    opacity 0.3s ease-in-out,
-    visibility 0.3s ease-in-out,
-    color 0.2s ease-in-out,
-    transform 0.2s ease-in-out;
-  transform: scale(0.9);
+    opacity 0.3s ease,
+    visibility 0.3s ease,
+    color 0.3s ease;
 }
 
-/* show on hover */
-.history li:hover i.fa-trash {
+
+body:not(.dark-mode) .history li:hover i.fa-trash {
   opacity: 1;
   visibility: visible;
-  transform: scale(1);
+  color: #ef4444; /* nice red hover color */
 }
-
-/* dark mode color */
-body.dark-mode .history li i.fa-trash {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-/* light mode color */
-body:not(.dark-mode) .history li i.fa-trash {
-  color: rgba(0, 0, 0, 0.6);
-}
-
-/* hover color effect */
-.history li i.fa-trash:hover {
-  color: #f87171 !important;
-}
-
-
-

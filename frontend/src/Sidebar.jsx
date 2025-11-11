@@ -1,14 +1,11 @@
-
-
 //  SigmaGPT Sidebar Component
 
 // Handles:
 //   Displaying previous chat threads
-//  Switching between threads
-//  Creating new chats
-//  Deleting old threads
-//  Auto-refresh (connected to ChatWindow)
-
+//   Switching between threads
+//   Creating new chats
+//   Deleting old threads
+//   Auto-refresh (connected to ChatWindow)
 
 import "./Sidebar.css";
 import { useContext, useEffect } from "react";
@@ -33,9 +30,13 @@ function Sidebar() {
   //  Authentication context
   const { user, logout } = useAuth();
 
-  
+  // ✅ Auto-detect correct backend URL
+  const BACKEND_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:8080"
+      : import.meta.env.VITE_BACKEND_URL;
+
   //  FETCH ALL CHAT THREADS (with refresh-token handling)
-  
   const getAllThreads = async () => {
     if (!user) {
       setAllThreads([]);
@@ -44,7 +45,7 @@ function Sidebar() {
     }
 
     try {
-      let response = await fetch("/api/thread", {
+      let response = await fetch(`${BACKEND_URL}/api/thread`, {
         method: "GET",
         credentials: "include", // include cookies
       });
@@ -52,13 +53,13 @@ function Sidebar() {
       // If token expired → try refreshing
       if (response.status === 401) {
         console.warn("401 on fetching threads — trying refresh...");
-        const refresh = await fetch("/api/auth/refresh", {
+        const refresh = await fetch(`${BACKEND_URL}/api/auth/refresh`, {
           method: "POST",
           credentials: "include",
         });
 
         if (refresh.ok) {
-          response = await fetch("/api/thread", {
+          response = await fetch(`${BACKEND_URL}/api/thread`, {
             method: "GET",
             credentials: "include",
           });
@@ -81,9 +82,7 @@ function Sidebar() {
     }
   };
 
-  
   //  Run once on mount or user change
-  
   useEffect(() => {
     getAllThreads();
 
@@ -93,9 +92,7 @@ function Sidebar() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  
   //  NEW CHAT CREATION (Reset chat window)
-  
   const handleNewChat = () => {
     setNewChat(true);
     setPrompt("");
@@ -104,16 +101,14 @@ function Sidebar() {
     setPrevChats([]);
   };
 
-  
   //  SWITCH THREADS (Change conversation view)
-  
   const changeThread = async (newThreadId) => {
     if (!user) return;
 
     setCurrThreadId(newThreadId);
 
     try {
-      let response = await fetch(`/api/thread/${newThreadId}`, {
+      let response = await fetch(`${BACKEND_URL}/api/thread/${newThreadId}`, {
         method: "GET",
         credentials: "include",
       });
@@ -121,13 +116,13 @@ function Sidebar() {
       // Token expired? Try refresh
       if (response.status === 401) {
         console.warn("401 while fetching thread messages — trying refresh...");
-        const refresh = await fetch("/api/auth/refresh", {
+        const refresh = await fetch(`${BACKEND_URL}/api/auth/refresh`, {
           method: "POST",
           credentials: "include",
         });
 
         if (refresh.ok) {
-          response = await fetch(`/api/thread/${newThreadId}`, {
+          response = await fetch(`${BACKEND_URL}/api/thread/${newThreadId}`, {
             method: "GET",
             credentials: "include",
           });
@@ -153,14 +148,12 @@ function Sidebar() {
     }
   };
 
-  
   //  DELETE THREAD (with token refresh handling)
-  
   const deleteThread = async (threadId) => {
     if (!user) return;
 
     try {
-      let response = await fetch(`/api/thread/${threadId}`, {
+      let response = await fetch(`${BACKEND_URL}/api/thread/${threadId}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -168,13 +161,13 @@ function Sidebar() {
       // Token expired? Try refresh
       if (response.status === 401) {
         console.warn("401 while deleting thread — trying refresh...");
-        const refresh = await fetch("/api/auth/refresh", {
+        const refresh = await fetch(`${BACKEND_URL}/api/auth/refresh`, {
           method: "POST",
           credentials: "include",
         });
 
         if (refresh.ok) {
-          response = await fetch(`/api/thread/${threadId}`, {
+          response = await fetch(`${BACKEND_URL}/api/thread/${threadId}`, {
             method: "DELETE",
             credentials: "include",
           });
@@ -200,9 +193,7 @@ function Sidebar() {
     }
   };
 
-  
   //  RENDER SIDEBAR UI
-  
   return (
     <section className="sidebar" aria-label="Sidebar">
       {/*  New Chat Button */}

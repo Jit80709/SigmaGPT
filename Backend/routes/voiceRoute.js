@@ -1,11 +1,11 @@
+//  SigmaGPT — Final Deployment-Ready Voice Route (100% English Only)
 
-//  SigmaGPT Voice Route (Final Stable)
-
-// Pipeline: Voice → Whisper (STT) → GPT → TTS → JSON Response
-//  Auto language detection: English  Bengali  Hindi
-//  Fix: English question no longer triggers wrong language
-//  Clean fallback for unclear input
-
+// Features
+//  Voice to Text (Whisper)
+//  Text to AI English reply (GPT-4o-mini)
+//  English Voice reply (TTS)
+//  Fully works on localhost + Render
+//  Auto folder create + cleanup
 
 import express from "express";
 import multer from "multer";
@@ -14,157 +14,116 @@ import OpenAI from "openai";
 import dotenv from "dotenv";
 
 dotenv.config();
+
 const router = express.Router();
 
+//  Ensure uploads folder exists
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
 
-// ⚙️ MULTER SETUP
-
+// 🎙 Multer setup
 const storage = multer.diskStorage({
-  destination: "uploads/",
+  destination: (req, file, cb) => {
+    const uploadDir = "uploads/";
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+    cb(null, uploadDir);
+  },
   filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
 });
 const upload = multer({ storage });
 
-
-//  OpenAI Initialization
-
+//  OpenAI setup
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-//  Improved Language Detection Function
-function detectLanguage(text = "") {
-  const bnRegex = /[\u0980-\u09FF]/;
-  const hiRegex = /[\u0900-\u097F]/;
-  const englishRatio =
-    (text.match(/[a-zA-Z]/g)?.length || 0) / (text.length || 1);
-
-  if (bnRegex.test(text)) return "bn";
-  if (hiRegex.test(text)) return "hi";
-  if (englishRatio > 0.6) return "en"; // mostly English text
-  return "en"; // default fallback
-}
-
-
-//  POST /api/voice
-
+// Voice Route: /api/voice
 router.post("/voice", upload.single("audio"), async (req, res) => {
   try {
-    console.log("🎧 Voice received:", req.file?.filename);
+    if (!req.file) throw new Error("No audio file received");
 
-    if (!process.env.OPENAI_API_KEY)
-      throw new Error(" Missing OpenAI API Key");
-    if (!req.file) throw new Error(" No audio file received");
+    // Step 1️: Transcribe English voice → text
+    const transcription = await openai.audio.transcriptions.create({
+      file: fs.createReadStream(req.file.path),
+      model: "whisper-1",
+      response_format: "text",
+      language: "en", // Force English transcription only
+    });
 
-    if (!req.file.mimetype.includes("webm")) {
-      req.file.mimetype = "audio/webm; codecs=opus";
-    }
+    const userText = (transcription || "").trim();
+    console.log("🎙 User said:", userText || "[empty]");
 
-    // 1️ Speech → Text (Whisper)
-    let transcription;
-    try {
-      transcription = await openai.audio.transcriptions.create({
-        file: fs.createReadStream(req.file.path),
-        model: "whisper-1",
-      });
-    } catch (err) {
-      console.error(" Whisper failed:", err.message);
-      transcription = { text: "" };
-    }
-
-    const userText = (transcription.text || "").trim();
-    console.log(" User said:", userText || "[EMPTY TRANSCRIPTION]");
-
-    // 2️ Language Detection (Improved)
-    const detectedLang = detectLanguage(userText);
-    console.log(" Detected Language:", detectedLang);
-
-    // 3️ Empty / unclear input
+    // Step 2️: Handle unclear audio
     if (!userText || userText.length < 2) {
-      const fallbackText =
-        detectedLang === "bn"
-          ? "আমি তোমার কথা ঠিক বুঝতে পারিনি, আবার বলো।"
-          : detectedLang === "hi"
-          ? "मुझे तुम्हारी बात ठीक से समझ नहीं आई, कृपया फिर से कहो।"
-          : "I couldn’t hear you clearly. Please try again!";
+      const fallback = "I couldn’t hear you clearly. Please say it again!";
+      const fallbackFile = `uploads/fallback_${Date.now()}.mp3`;
 
-      const fallbackAudio = `uploads/reply_${Date.now()}_fallback.mp3`;
-      const ttsResponse = await openai.audio.speech.create({
+      const tts = await openai.audio.speech.create({
         model: "gpt-4o-mini-tts",
-        voice: "alloy",
-        input: fallbackText,
+        voice: "verse",
+        input: fallback,
       });
-      const buffer = Buffer.from(await ttsResponse.arrayBuffer());
-      fs.writeFileSync(fallbackAudio, buffer);
+
+      fs.writeFileSync(fallbackFile, Buffer.from(await tts.arrayBuffer()));
 
       return res.json({
         userText,
-        text: fallbackText,
-        language: detectedLang,
-        audioUrl: `http://localhost:${process.env.PORT || 8080}/${fallbackAudio}`,
+        text: fallback,
+        language: "en",
+        audioUrl: `${process.env.BASE_URL || "http://localhost:8080"}/${fallbackFile}`,
       });
     }
 
-    // 4️ GPT Reply Generation
-    const chatCompletion = await openai.chat.completions.create({
+    // Step 3️: Get GPT reply (English only)
+    const chat = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
           content: `
-            You are SigmaGPT — a multilingual AI assistant.
-            The user's detected language is "${detectedLang}".
-            - If English, reply in English.
-            - If Bengali, reply in Bengali.
-            - If Hindi, reply in Hindi.
-            Always match the user's language unless explicitly changed.
-            Keep replies short, natural, and friendly.
+            You are SigmaGPT, an intelligent AI assistant.
+            The user always speaks English.
+            Always understand and reply ONLY in English.
+            Keep answers clear, concise, and natural.
           `,
         },
         { role: "user", content: userText },
       ],
-      temperature: 0.7,
     });
 
-    const aiReply =
-      chatCompletion.choices?.[0]?.message?.content ||
-      (detectedLang === "bn"
-        ? "দুঃখিত, আমি বুঝতে পারিনি। আবার বলো।"
-        : detectedLang === "hi"
-        ? "माफ़ कीजिए, मैं समझ नहीं पाया।"
-        : "I'm sorry, I couldn’t understand. Please try again.");
+    const aiReply = chat.choices[0]?.message?.content || "Sorry, I didn’t understand.";
+    console.log(" AI Reply:", aiReply);
 
-    console.log(" SigmaGPT:", aiReply);
-
-    // 5️ Text → Speech (TTS)
+    // Step 4️: Convert GPT reply → English Voice (TTS)
     const speechFile = `uploads/reply_${Date.now()}.mp3`;
-    const ttsResponse = await openai.audio.speech.create({
+
+    const tts = await openai.audio.speech.create({
       model: "gpt-4o-mini-tts",
-      voice: "alloy",
+      voice: "verse", // English natural voice
       input: aiReply,
     });
-    const buffer = Buffer.from(await ttsResponse.arrayBuffer());
-    fs.writeFileSync(speechFile, buffer);
 
-    // 6 Send to Frontend
+    fs.writeFileSync(speechFile, Buffer.from(await tts.arrayBuffer()));
+
+    // Step 5️: Send final response
     res.json({
       userText,
       text: aiReply,
-      language: detectedLang,
-      audioUrl: `http://localhost:${process.env.PORT || 8080}/${speechFile}`,
+      language: "en",
+      audioUrl: `${process.env.BASE_URL || "http://localhost:8080"}/${speechFile}`,
     });
 
-    // 7️ Cleanup
+    // Step 6️: Auto cleanup after 5s
     setTimeout(() => {
-      fs.unlink(req.file.path, (err) => {
-        if (err) console.warn("⚠️ Cleanup failed:", err.message);
-      });
-    }, 2000);
+      fs.unlink(req.file.path, () => {});
+    }, 5000);
   } catch (err) {
-    console.error(" Voice Route Error:", err);
-    res.status(500).json({
-      error: err.message || "Internal Server Error",
-    });
+    console.error(" Voice Route Error:", err.message);
+    if (err.response) {
+      console.error(" OpenAI Response:", await err.response.text());
+    }
+    res.status(500).json({ error: err.message });
   }
 });
 
