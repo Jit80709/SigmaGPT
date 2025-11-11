@@ -1,7 +1,4 @@
-//  SigmaGPT — Final Voice + Chat Deployment-Ready Server
-//  Supports: Voice Recognition (Whisper) + GPT Reply + TTS + Auth + CORS Fix
-//  Works on localhost and Render deployment without modification
-
+//  SigmaGPT — Final One-Link Deployment Version (Frontend + Backend + Voice + Auth)
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
@@ -26,18 +23,16 @@ if (!fs.existsSync("uploads")) {
 
 // Initialize Express
 const app = express();
-
-// Trust proxy (important for Render + cookies)
 app.set("trust proxy", 1);
 
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
 
-// Serve voice/audio files publicly
+// Serve uploads folder
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-//  UNIVERSAL CORS FIX (Works both locally and on Render)
+//  UNIVERSAL CORS (Local + Render)
 const allowedOrigins = [
   process.env.CLIENT_URL,
   "http://localhost:5173",
@@ -47,7 +42,6 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow Postman or curl (no origin)
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       console.warn(" Blocked CORS request from:", origin);
@@ -56,64 +50,49 @@ app.use(
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
   })
 );
 
-//  Handle CORS Preflight Requests
 app.options("*", cors());
 
 //  MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI, { dbName: "sigmagpt" })
-  .then(() => console.log(" MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB Error:", err.message));
+  .then(() => console.log(" MongoDB Connected"))
+  .catch((err) => console.error(" MongoDB Error:", err.message));
 
 //  API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api", chatRoutes);
 app.use("/api", voiceRoute);
 
-//  Health Check Route
-app.get("/", (req, res) => {
-  res.json({ status: " SigmaGPT Backend Running" });
-});
-
-//  Serve React Frontend (Vite build) for deployment
+//  Serve Frontend (React Vite build)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const frontendPath = path.join(__dirname, "../frontend/dist");
 
 app.use(express.static(frontendPath));
+
+//  Health route (use /api/health to avoid conflict)
+app.get("/api/health", (req, res) => {
+  res.json({ status: " SigmaGPT Backend Running" });
+});
+
+// ⚡️ Serve React for all other routes
 app.get("*", (req, res) => {
   res.sendFile(path.resolve(frontendPath, "index.html"));
 });
 
-//  Global Error Handler (prevents 500 crash)
+//  Global Error Handler
 app.use((err, req, res, next) => {
-  console.error("🔥 Server Error:", err.message);
+  console.error(" Server Error:", err.message);
   res.status(500).json({ error: "Internal Server Error" });
 });
 
-//  Start Server with Auto-Port Fallback (Safe for Render)
+//  Start Server
 const PORT = process.env.PORT || 8080;
-
-const startServer = (port) => {
-  const server = app.listen(port, "0.0.0.0", () => {
-    console.log(` SigmaGPT Backend running on port ${port}`);
-    console.log(` Client URL: ${process.env.CLIENT_URL}`);
-    console.log(` Base URL: ${process.env.BASE_URL}`);
-  });
-
-  server.on("error", (err) => {
-    if (err.code === "EADDRINUSE") {
-      console.log(` Port ${port} busy. Trying ${port + 1}...`);
-      startServer(port + 1);
-    } else {
-      console.error(" Server Error:", err);
-    }
-  });
-};
-
-startServer(PORT);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(` SigmaGPT Live on Port: ${PORT}`);
+  console.log(` Client URL: ${process.env.CLIENT_URL}`);
+  console.log(` Base URL: ${process.env.BASE_URL}`);
+});
